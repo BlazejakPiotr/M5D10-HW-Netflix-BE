@@ -39,3 +39,21 @@ export const deleteRecord = async (path, id) => {
   let filteredData = data.filter((d) => d.imdbID !== id);
   await writeJSONFile(path, filteredData);
 };
+
+export const postReview = async (path, id, body) => {
+  let data = await loadJSONFile(path);
+  let newReview = {
+    ...body,
+    _id: uniqid(),
+    elementId: id,
+    createdAt: new Date(),
+  };
+  data.push(newReview);
+  await writeJSONFile(path, data);
+};
+
+export const filterReviews = async (path, id) => {
+  let data = await loadJSONFile(path);
+  let filteredReviews = data.filter((r) => r.elementId === id);
+  console.log(filteredReviews);
+};

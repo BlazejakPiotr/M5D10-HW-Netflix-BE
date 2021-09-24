@@ -7,6 +7,8 @@ import {
   postRecord,
   deleteRecord,
   editRecord,
+  postReview,
+  filterReviews,
 } from "../../tools.js";
 
 const mediaRouter = express.Router();
@@ -14,6 +16,11 @@ const mediaRouter = express.Router();
 const mediaFileJSONPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "media.json"
+);
+
+const reviewsFileJSONPath = join(
+  process.cwd(),
+  "src/services/reviews/reviews.json"
 );
 
 // POST
@@ -38,7 +45,18 @@ mediaRouter.get("/", async (req, res) => {
 // GET by ID (with reviews)
 mediaRouter.get("/:imdbID", async (req, res) => {
   try {
-    res.send(await getMediaByID(mediaFileJSONPath, req.params.imdbID));
+    let reviews = await loadJSONFile(reviewsFileJSONPath);
+    let filteredReviews = reviews.filter(
+      (r) => r.elementId === req.params.imdbID
+    );
+    console.log(filteredReviews);
+    let media = await getMediaByID(mediaFileJSONPath, req.params.imdbID);
+    let mediaWithRevies = {
+      ...media,
+      reviews: [...reviews],
+    };
+
+    res.send(mediaWithRevies);
   } catch (error) {
     console.log(error);
   }
@@ -67,6 +85,7 @@ mediaRouter.delete("/:imdbID", async (req, res) => {
 
 // /media/:id/reviews
 // POST Review to media
+
 // DELETE Review of media
 
 export default mediaRouter;
